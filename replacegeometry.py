@@ -219,24 +219,23 @@ class ReplaceGeometry:
     def run(self):
         """Run method that performs all the real work"""
 
-                ### Get the active layer
+        # Get the active layer
         layer = iface.activeLayer()
 
-        #save to avoid loosing unsaved editing   
+        # Save the edits to avoid loosing unsaved editing   
         layer.commitChanges()
 
-        ###check the attribute popup status: false is on (appeare), true is off(don't appeare)
+        # Check the attribute popup status
         popup_status = QSettings().value("/Qgis/digitizing/disable_enter_attribute_values_dialog")
 
-        ###turn off the attribute form popup
+        # Turn off the attribute form popup
         if popup_status == False:
             QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", True)
-
-        ###put in memory the original layer id
+        
         for feature in layer.selectedFeatures():
             old_id = [feature.id()]
                  
-        ###check with message that only one feature is selected
+        # Check, with messages, that only one feature is selected
         if layer.selectedFeatureCount() > 0:
             count = layer.selectedFeatureCount()
         else:
@@ -251,10 +250,9 @@ class ReplaceGeometry:
              QMessageBox.warning(None,
            'Replace Geometry Plugin',
             'The selection contains multiple features. Select only one feature.')
-        ##condition for 1 element selected
         else:
 
-        ###start the digitising
+        #start the digitising
         # Define a function called when a feature is added to the layer
             def feature_added():
               
@@ -264,13 +262,12 @@ class ReplaceGeometry:
                 listOfIds = [feat.id() for feat in layer.getFeatures()]
                 new_feature_id = [listOfIds[0]]
                 
-            ###calculate the new WKT
+                # Calculate the new WKT
                 layer.selectByIds(new_feature_id)
                 for feature in layer.selectedFeatures():
                     new_WKT = feature.geometry().asWkt()
                     layer.removeSelection()
-                    
-                ###then the magic
+                 
                 layer.startEditing()
                 layer.selectByIds(old_id)
                 for feature in layer.selectedFeatures():
@@ -278,20 +275,20 @@ class ReplaceGeometry:
                     new_geometry = QgsGeometry.fromWkt(new_WKT)
                     layer.changeGeometry(final_id, new_geometry)
                 
-                ###finally remove the new feature
+                # Remove the new feature
                 layer.removeSelection()
                 layer.selectByIds(new_feature_id)
                 for feature in layer.selectedFeatures():
                     toremove_id = feature.id()
                     layer.deleteFeature(toremove_id)
 
-                #save the changes
+                # Save the changes
                 layer.commitChanges()
                 
-                #reselect the old feature
+                # Reselect the old feature
                 layer.selectByIds(old_id)
                 
-                #turn on the popup if ever was on
+                # Turn on the popup if ever was on
                 QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", popup_status)
                 
             
@@ -299,10 +296,10 @@ class ReplaceGeometry:
             # added to the layer, the feature_added function is called
         layer.featureAdded.connect(feature_added)
 
-            # Set the layer in edit mode
+        # Set the layer in edit mode
         layer.startEditing()
             
-        #    Activate the QGIS add feature tool
+        #Activate the QGIS add feature tool
         iface.actionAddFeature().trigger()
             
     
