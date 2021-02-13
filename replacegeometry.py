@@ -222,7 +222,7 @@ class ReplaceGeometry:
         # Get the active layer
         layer = iface.activeLayer()
 
-        # Save the edits to avoid loosing unsaved editing   
+        # Save the edits to avoid losing the unsaved editing   
         layer.commitChanges()
 
         # Check the attribute popup status
