@@ -11,7 +11,6 @@
         copyright            : (C) 2021 by ValP
         email                : pinnavalerio@yahoo.co.uk
  ***************************************************************************/
-
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -38,7 +37,9 @@ from qgis.core import (QgsWkbTypes,
                        QgsFeatureRequest,
                        QgsVectorLayer,
                        QgsDistanceArea,
-                       QgsUnitTypes)
+                       QgsUnitTypes,
+                       QgsEditFormConfig)
+                       
 from .resources import *
 #from .resources3 import *
 from qgis.utils import iface
@@ -49,14 +50,14 @@ from .resources import *
 # Import the code for the dialog
 from .replacegeometry_dialog import ReplaceGeometryDialog
 
-
+# Global variables
+layer = iface.activeLayer()
 
 class ReplaceGeometry:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
         """Constructor.
-
         :param iface: An interface instance that will be passed to this class
             which provides the hook by which you can manipulate the QGIS
             application at run time.
@@ -101,12 +102,9 @@ class ReplaceGeometry:
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
-
         We implement this ourselves since we do not inherit QObject.
-
         :param message: String for translation.
         :type message: str, QString
-
         :returns: Translated version of message.
         :rtype: QString
         """
@@ -128,39 +126,29 @@ class ReplaceGeometry:
         whats_this=None,
         parent=None):
         """Add a toolbar icon to the toolbar.
-
         :param icon_path: Path to the icon for this action. Can be a resource
             path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
         :type icon_path: str
-
         :param text: Text that should be shown in menu items for this action.
         :type text: str
-
         :param callback: Function to be called when the action is triggered.
         :type callback: function
-
         :param enabled_flag: A flag indicating if the action should be enabled
             by default. Defaults to True.
         :type enabled_flag: bool
-
         :param add_to_menu: Flag indicating whether the action should also
             be added to the menu. Defaults to True.
         :type add_to_menu: bool
-
         :param add_to_toolbar: Flag indicating whether the action should also
             be added to the toolbar. Defaults to True.
         :type add_to_toolbar: bool
-
         :param status_tip: Optional text to show in a popup when mouse pointer
             hovers over the action.
         :type status_tip: str
-
         :param parent: Parent widget for the new action. Defaults None.
         :type parent: QWidget
-
         :param whats_this: Optional text to show in the status bar when the
             mouse pointer hovers over the action.
-
         :returns: The action that was created. Note that the action is also
             added to self.actions list.
         :rtype: QAction
@@ -214,92 +202,86 @@ class ReplaceGeometry:
                 self.tr(u'&Replace Geometry'),
                 action)
             self.iface.removeToolBarIcon(action)
-
-
+            
+            
+    def saveedits(self):
+        if layer is not None:
+            # Save the edits to avoid losing the unsaved editing   
+            layer.commitChanges()
+    
     def run(self):
         """Run method that performs all the real work"""
-
-        # Get the active layer
-        layer = iface.activeLayer()
-
-        # Save the edits to avoid losing the unsaved editing   
-        layer.commitChanges()
-
-        # Check the attribute popup status
-        popup_status = QSettings().value("/Qgis/digitizing/disable_enter_attribute_values_dialog")
-
-        # Turn off the attribute form popup
-        if popup_status == False:
-            QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", True)
-        
-        for feature in layer.selectedFeatures():
-            old_id = [feature.id()]
-                 
-        # Check, with messages, that only one feature is selected
-        if layer.selectedFeatureCount() > 0:
-            count = layer.selectedFeatureCount()
-        else:
-            count = 0
-         
-        if count == 0 :
-            QMessageBox.warning(
-            None,
-            'Replace Geometry Plugin',
-            'There is no selection. Select one feature.')
-        elif count >1: 
-             QMessageBox.warning(None,
-           'Replace Geometry Plugin',
-            'The selection contains multiple features. Select only one feature.')
-        else:
-
-        #start the digitising
-        # Define a function called when a feature is added to the layer
-            def feature_added():
-              
-                # Disconnect from the signal
-                layer.featureAdded.disconnect()
-
-                listOfIds = [feat.id() for feat in layer.getFeatures()]
-                new_feature_id = [listOfIds[0]]
+      
+               
+        if layer is not None:
+                                   
+            # Check, with messages, that only one feature is selected
+            if layer.selectedFeatureCount() == 0:
+                QMessageBox.warning(
+                None,
+                'Replace Geometry Plugin',
+                'There is no selection. Select one feature.')
+            elif layer.selectedFeatureCount() >= 2: 
+                 QMessageBox.warning(None,
+               'Replace Geometry Plugin',
+                'The selection contains multiple features. Select only one feature.')
+                     
+            else:
                 
-                # Calculate the new WKT
-                layer.selectByIds(new_feature_id)
+                # Turn off the attribute form popup
+                form_config = layer.editFormConfig() 
+                form_config.setSuppress(QgsEditFormConfig.SuppressOn) 
+                layer.setEditFormConfig(form_config)
+                
                 for feature in layer.selectedFeatures():
-                    new_WKT = feature.geometry().asWkt()
+                    global old_id
+                    old_id = [feature.id()]
+                       
+                def feature_added(self):
+                    
+                    # Disconnect from the signal
+                    layer.featureAdded.disconnect()
+                    
+                    listOfIds = [feat.id() for feat in layer.getFeatures()]
+                    new_feature_id = [listOfIds[0]]
+                    
+                    # Calculate the new WKT
+                    layer.selectByIds(new_feature_id)
+                    for feature in layer.selectedFeatures():
+                        new_WKT = feature.geometry().asWkt()
+                        layer.removeSelection()
+                     
+                    layer.startEditing()
+                    layer.selectByIds(old_id)
+                    for feature in layer.selectedFeatures():
+                        final_id = feature.id()
+                        new_geometry = QgsGeometry.fromWkt(new_WKT)
+                        layer.changeGeometry(final_id, new_geometry)
+                    
+                    # Remove the new feature
                     layer.removeSelection()
-                 
+                    layer.selectByIds(new_feature_id)
+                    for feature in layer.selectedFeatures():
+                        toremove_id = feature.id()
+                        layer.deleteFeature(toremove_id)
+                        # Save the changes
+                        layer.commitChanges()
+                    
+                    # Reselect the old feature
+                    layer.selectByIds(old_id)
+                    
+                    # Turn on the popup if ever was on
+                    form_config = layer.editFormConfig() 
+                    form_config.setSuppress(QgsEditFormConfig.SuppressDefault) 
+                    layer.setEditFormConfig(form_config)
+                    
+                    
+                # Connect the layer to the signal featureAdded, so when a feature is added to the layer, the feature_added function is called
+                layer.featureAdded.connect(feature_added)
+
+                # Set the layer in edit mode
                 layer.startEditing()
-                layer.selectByIds(old_id)
-                for feature in layer.selectedFeatures():
-                    final_id = feature.id()
-                    new_geometry = QgsGeometry.fromWkt(new_WKT)
-                    layer.changeGeometry(final_id, new_geometry)
+                    
+                #Activate the QGIS add feature tool
+                iface.actionAddFeature().trigger()    
                 
-                # Remove the new feature
-                layer.removeSelection()
-                layer.selectByIds(new_feature_id)
-                for feature in layer.selectedFeatures():
-                    toremove_id = feature.id()
-                    layer.deleteFeature(toremove_id)
-
-                # Save the changes
-                layer.commitChanges()
-                
-                # Reselect the old feature
-                layer.selectByIds(old_id)
-                
-                # Turn on the popup if ever was on
-                QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", popup_status)
-                
-            
-            # Connect the layer to the signal featureAdded, so when a feature is
-            # added to the layer, the feature_added function is called
-        layer.featureAdded.connect(feature_added)
-
-        # Set the layer in edit mode
-        layer.startEditing()
-            
-        #Activate the QGIS add feature tool
-        iface.actionAddFeature().trigger()
-            
-    
