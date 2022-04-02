@@ -291,8 +291,6 @@ class ReplaceGeometry:
                     
                     iface.setActiveLayer(layer)
                     
-                    layer.clear()
-                    
                 # Connect the layer to the signal featureAdded, so when a feature is added to the layer, the feature_added function is called
                 ghost_layer.featureAdded.connect(feature_added)
 
