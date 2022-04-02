@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/replacegeometry" >
+    <qresource prefix="/plugins/replace_geometry" >
         <file>icon.png</file>
     </qresource>
 </RCC>

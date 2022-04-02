@@ -5,12 +5,12 @@
 [general]
 name=Replace Geometry
 qgisMinimumVersion=3.0
-description= Replaces a geometry keeping the attributes unchanged
-version=0.1
-author=ValP
+description=Replaces a geometry keeping the attributes unchanged
+version=1.2
+author=Valerio Pinna
 email=pinnavalerio@yahoo.co.uk
 
-about=Replaces a geometry keeping the attributes unchanged. It work with any type of geometry and any layer format.
+about=The plugin replaces a geometry keeping the attributes unchanged. It work with any type of geometry and any vector layer format.
 
 tracker=http://bugs
 repository=https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin.git
@@ -25,8 +25,8 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=attribute, digitizing, geometry, point, polygon, polyline, replace
 
-homepage=https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin.git
-category=Vector
+homepage=http://homepage
+category=Plugins
 icon=icon.png
 # experimental flag
 experimental=False
