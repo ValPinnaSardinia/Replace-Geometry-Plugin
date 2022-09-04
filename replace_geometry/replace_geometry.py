@@ -202,100 +202,134 @@ class ReplaceGeometry:
 
     def run(self):
         """Run method that performs all the real work"""
-
-        layer = iface.activeLayer()
-
+        layers_list = QgsProject.instance().mapLayers()
+        
+        # if len(QgsProject.instance().mapLayersByName('Ghost_layer')) != 0:
+        
+            
+            # QgsProject.instance().layerTreeRoot().removeLayer(old_ghost_layer)
         
         
-        if layer is not None:
-                           
-            # Check, with messages, that only one feature is selected
-            if layer.selectedFeatureCount() == 0:
-                QMessageBox.warning(
-                None,
-                'Replace Geometry Plugin',
-                'There is no selection. Select one feature.')
-            elif layer.selectedFeatureCount() >= 2: 
-                 QMessageBox.warning(None,
-               'Replace Geometry Plugin',
-                'The selection contains multiple features. Select only one feature.')
-                     
-            else:        
-                for feature in layer.selectedFeatures():
-                    global old_id
-                    old_id = [feature.id()]
-                       
-                ###get active layer info (geometry type and epsg)
-                geo_type = QgsWkbTypes.displayString(layer.wkbType())
-                epsg = layer.crs().authid()
-                l_info = geo_type + '?crs='+epsg
-
-                ### create the ghost layer AND define the layer by name as variable
-                
-                temp_layer = QgsVectorLayer(l_info, 'Ghost_layer', 'memory')
-
-                ####add the ghost layer to the map
-                QgsProject.instance().addMapLayer(temp_layer)
-                       
-                     
-                ###Make ghost layer visible on canvas but not in TOC   
-                model = iface.layerTreeView().layerTreeModel()
-                ltv = iface.layerTreeView()
-                root = QgsProject.instance().layerTreeRoot()
-                
-                global ghost_layer
-                ghost_layer = QgsProject.instance().mapLayersByName('Ghost_layer')[0]
-                node = root.findLayer( ghost_layer.id())
-                
-                index = model.node2index( node )
-                ltv.setRowHidden( index.row(), index.parent(), True )
-                node.setCustomProperty( 'nodeHidden', 'true')
-                ltv.setCurrentIndex(model.node2index(root))
-                
-                ###Make refererence_lines as momentary active layer
-                iface.setActiveLayer(ghost_layer)
-                    
-                def feature_added(self):
-                    
-                    # Disconnect from the signal
-                    ghost_layer.featureAdded.disconnect()
-                    
-                    for feat in ghost_layer.getFeatures():
-                        global new_WKT
-                        new_WKT = feat.geometry().asWkt()
-                    
-                    ghost_layer.commitChanges()
-                    
-                    ###reselect the original layer as active
-                    #iface.setActiveLayer(layer)
-                    
-                    layer.startEditing()
-                    layer.beginEditCommand("Replace Geometry")
-                    layer.selectByIds(old_id)
-                    for feature in layer.selectedFeatures():
-                        final_id = feature.id()
-                        new_geometry = QgsGeometry.fromWkt(new_WKT)
-                        layer.changeGeometry(final_id, new_geometry)
-                    
-                    # Save the changes in the buffer 
-                    layer.triggerRepaint()
-                    #iface.mapCanvas().refresh()
-                    
-                    layer.endEditCommand()
-          
+        
+        if len(layers_list)!= 0:                            
+            
+            layer = iface.activeLayer()
+            if layer is not None:
+                if layer.type() != QgsVectorLayer.VectorLayer:
+                    return self.dontdonothing()
+ 
+                if layer.type() == QgsVectorLayer.VectorLayer:
+                    print ('yes')               
+                    # Check, with messages, that only one feature is selected
+                    if layer.selectedFeatureCount() == 0:
+                        QMessageBox.warning(
+                        None,
+                        'Replace Geometry Plugin',
+                        'There is no selection. Select one feature.')
+                    elif layer.selectedFeatureCount() >= 2: 
+                         QMessageBox.warning(None,
+                       'Replace Geometry Plugin',
+                        'The selection contains multiple features. Select only one feature.')
+                             
+                    else:        
+                        for feature in layer.selectedFeatures():
+                            global old_id
+                            old_id = [feature.id()]
                                
-                    # Reselect the old feature
-                    layer.selectByIds(old_id)
-                    
-                    root.removeLayer(ghost_layer)
-                    
-                    iface.setActiveLayer(layer)
-                    
-                # Connect the layer to the signal featureAdded, so when a feature is added to the layer, the feature_added function is called
-                ghost_layer.featureAdded.connect(feature_added)
+                        ###get active layer info (geometry type and epsg)
+                        geo_type = QgsWkbTypes.displayString(layer.wkbType())
+                        epsg = layer.crs().authid()
+                        l_info = geo_type + '?crs='+epsg
 
-                # Set the layer in edit mode
-                ghost_layer.startEditing()
-                    
-                #Activate the QGIS add feature tool
-                iface.actionAddFeature().trigger()    
+                        ### create the ghost layer AND define the layer by name as variable
+                        
+                        temp_layer = QgsVectorLayer(l_info, 'Ghost_layer', 'memory')
+
+                        ####add the ghost layer to the map
+                        QgsProject.instance().addMapLayer(temp_layer)
+                               
+                             
+                        ###Make ghost layer visible on canvas but not in TOC   
+                        model = iface.layerTreeView().layerTreeModel()
+                        ltv = iface.layerTreeView()
+                        root = QgsProject.instance().layerTreeRoot()
+                        
+                        global ghost_layer
+                        ghost_layer = QgsProject.instance().mapLayersByName('Ghost_layer')[0]
+                        
+                        ###make ghost layer hidden
+                        # node = root.findLayer( ghost_layer.id())
+                        
+                        # index = model.node2index( node )
+                        # ltv.setRowHidden( index.row(), index.parent(), True )
+                        # node.setCustomProperty( 'nodeHidden', 'true')
+                        # ltv.setCurrentIndex(model.node2index(root))
+                        
+                        ###Make refererence_lines as momentary active layer
+                        iface.setActiveLayer(ghost_layer)
+                            
+                        def feature_added(self):
+                            
+                            # Disconnect from the signal
+                            ghost_layer.featureAdded.disconnect()
+                            
+                            for feat in ghost_layer.getFeatures():
+                                global new_WKT
+                                new_WKT = feat.geometry().asWkt()
+                            
+                            ghost_layer.commitChanges()
+                            
+                            ###reselect the original layer as active
+                            #iface.setActiveLayer(layer)
+                            
+                            layer.startEditing()
+                            layer.beginEditCommand("Replace Geometry")
+                            layer.selectByIds(old_id)
+                            for feature in layer.selectedFeatures():
+                                final_id = feature.id()
+                                new_geometry = QgsGeometry.fromWkt(new_WKT)
+                                layer.changeGeometry(final_id, new_geometry)
+                            
+                            # Save the changes in the buffer 
+                            layer.triggerRepaint()
+                            #iface.mapCanvas().refresh()
+                            
+                            layer.endEditCommand()
+                  
+                            iface.setActiveLayer(layer)           
+                            # Reselect the old feature
+                            layer.selectByIds(old_id)
+                            
+                            ghost_layer_to_remove = QgsProject.instance().mapLayersByName('Ghost_layer')[0]
+                            tree_layer = root.findLayer(ghost_layer_to_remove.id())
+                            layer_parent = tree_layer.parent()
+                            if len(layer_parent.name()) == 0:
+                                    root.removeLayer(ghost_layer_to_remove)
+                            
+                            if len(layer_parent.name()) != 0:
+                                ghost_group_name = layer_parent.name()
+                                ghost_group = root.findGroup(ghost_group_name)
+                                for child in ghost_group.children():
+                                    if child.name() == 'Ghost_layer':
+                                        print(child.name())
+                                        ghost_group.removeLayer(ghost_layer_to_remove)
+                                                    
+                            
+                            
+                            
+                            
+                        # Connect the layer to the signal featureAdded, so when a feature is added to the layer, the feature_added function is called
+                        ghost_layer.featureAdded.connect(feature_added)
+
+                        # Set the layer in edit mode
+                        ghost_layer.startEditing()
+                            
+                        #Activate the QGIS add feature tool
+                        iface.actionAddFeature().trigger()    
+
+
+
+
+
+    def dontdonothing(self):
+            pass
