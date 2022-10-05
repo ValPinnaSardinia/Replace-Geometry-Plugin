@@ -203,7 +203,7 @@ class ReplaceGeometry:
     def run(self):
         """Run method that performs all the real work"""
         layers_list = QgsProject.instance().mapLayers()
-        
+        ext_canvas = QgsGeometry.fromRect(iface.mapCanvas().extent())
         # if len(QgsProject.instance().mapLayersByName('Ghost_layer')) != 0:
         
             
@@ -233,8 +233,21 @@ class ReplaceGeometry:
                              
                     else:        
                         for feature in layer.selectedFeatures():
-                            global old_id
-                            old_id = [feature.id()]
+                            if ext_canvas.contains(feature.geometry()) or ext_canvas.intersects(feature.geometry()):
+                                #global old_id
+                                old_id = [feature.id()]
+                            
+                            if not feature.geometry().intersects(ext_canvas):
+                                reply = QMessageBox.warning(None,  'Replace Geometry Plugin',
+                                                    'The selected feature is outside of the current map view. Would you still like to continue?',
+                                                    QMessageBox.Yes, QMessageBox.No)
+                                if reply == QMessageBox.No: 
+                                    return self.dontdonothing()
+                                            
+                                if reply == QMessageBox.Yes:
+                                    #global old_id
+                                    old_id = [feature.id()]
+                                
                                
                         ###get active layer info (geometry type and epsg)
                         geo_type = QgsWkbTypes.displayString(layer.wkbType())
