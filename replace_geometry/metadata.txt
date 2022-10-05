@@ -6,7 +6,7 @@
 name=Replace Geometry
 qgisMinimumVersion=3.0
 description=Replaces a geometry keeping the attributes unchanged
-version=1.3
+version=1.5
 author=Valerio Pinna
 email=pinnavalerio@yahoo.co.uk
 
