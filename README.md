@@ -1,6 +1,6 @@
 # Replace-Geometry-Plugin
 
-![image](https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin/blob/main/ReplaceGeometry_large.png)
+![image](https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin/blob/main/images/ReplaceGeometry_large.png)
 
 
 
