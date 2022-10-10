@@ -276,16 +276,22 @@ class ReplaceGeometry:
                             #iface.mapCanvas().refresh()
                             
                             layer.endEditCommand()
-                  
+                            
                             iface.setActiveLayer(layer)           
                             # Reselect the old feature
                             layer.selectByIds(old_id)
-                            
+                            QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", popup_status)
   
                         layer.featureAdded.connect(new_feature_added)
 
                         # Set the layer in edit mode
                         layer.startEditing()
+                        ###check the attribute popup status: false is on (appeare), true is off(don't appeare)
+                        popup_status = QSettings().value("/Qgis/digitizing/disable_enter_attribute_values_dialog")
+                        #####turn temporarly off the attribute form popup
+                        if popup_status == False:
+                            QSettings().setValue("/Qgis/digitizing/disable_enter_attribute_values_dialog", True)
+                            
                             
                         #Activate the QGIS add feature tool
                         iface.actionAddFeature().trigger()    
