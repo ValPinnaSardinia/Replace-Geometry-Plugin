@@ -27,8 +27,7 @@ import os.path
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsApplication, QgsMapLayer, QgsMessageLog
-from qgis.PyQt.QtWidgets import QAction, QMenu, QToolButton  # Qt5
-from PyQt5.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QMenu, QToolButton, QMessageBox
 from qgis.core import (QgsWkbTypes,
                        QgsProject,
                        QgsVectorLayerTools,
