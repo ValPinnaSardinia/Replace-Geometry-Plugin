@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReplaceGeometrySettingsDialogBase</class>
+ <widget class="QDialog" name="ReplaceGeometrySettingsDialogBase">
+  <property name="windowTitle">
+   <string>Replace Geometry Settings</string>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>520</width>
+    <height>360</height>
+   </size>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>18</number></property>
+   <property name="topMargin"><number>18</number></property>
+   <property name="rightMargin"><number>18</number></property>
+   <property name="bottomMargin"><number>18</number></property>
+   <property name="spacing"><number>14</number></property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text"><string>Replace Geometry Settings</string></property>
+     <property name="styleSheet"><string>QLabel { font-size: 16pt; font-weight: 700; color: palette(text); }</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="descriptionLabel">
+     <property name="text"><string>Configure the geometry replacement workflow, capture preview and confirmation behaviour.</string></property>
+     <property name="wordWrap"><bool>true</bool></property>
+     <property name="styleSheet"><string>QLabel { color: palette(mid); }</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="settingsFrame">
+     <property name="frameShape"><enum>QFrame::NoFrame</enum></property>
+     <property name="styleSheet"><string>
+      QFrame#settingsFrame {
+       border-radius: 12px;
+       border: 1px solid rgba(120, 160, 190, 120);
+       background-color: rgba(120, 160, 190, 28);
+      }
+      QCheckBox { spacing: 8px; color: palette(text); }
+      QLabel { color: palette(text); }
+      QComboBox, QSpinBox { min-height: 26px; border-radius: 6px; padding: 3px 8px; }
+     </string></property>
+     <layout class="QVBoxLayout" name="frameLayout">
+      <property name="leftMargin"><number>16</number></property>
+      <property name="topMargin"><number>16</number></property>
+      <property name="rightMargin"><number>16</number></property>
+      <property name="bottomMargin"><number>16</number></property>
+      <property name="spacing"><number>12</number></property>
+      <item>
+       <widget class="QGroupBox" name="workflowGroup">
+        <property name="title"><string>Workflow</string></property>
+        <layout class="QVBoxLayout" name="workflowGroupLayout">
+         <item><widget class="QCheckBox" name="confirmReplacementCheck"><property name="text"><string>Confirm before replacing the selected geometry</string></property></widget></item>
+         <item><widget class="QCheckBox" name="showCaptureHelpCheck"><property name="text"><string>Show capture instructions when the tool starts</string></property></widget></item>
+         <item><widget class="QCheckBox" name="returnPreviousToolCheck"><property name="text"><string>Return to previous map tool after capture</string></property></widget></item>
+         <item><widget class="QCheckBox" name="showBackspaceMessageCheck"><property name="text"><string>Show message when Backspace removes the last vertex</string></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="previewGroup">
+        <property name="title"><string>Capture preview</string></property>
+        <layout class="QFormLayout" name="previewFormLayout">
+         <item row="0" column="0"><widget class="QLabel" name="previewStyleLabel"><property name="text"><string>Preview style</string></property></widget></item>
+         <item row="0" column="1"><widget class="QComboBox" name="previewStyleCombo"/></item>
+         <item row="1" column="0"><widget class="QLabel" name="previewWidthLabel"><property name="text"><string>Line width</string></property></widget></item>
+         <item row="1" column="1"><widget class="QSpinBox" name="previewWidthSpin"><property name="minimum"><number>1</number></property><property name="maximum"><number>6</number></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons"><set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

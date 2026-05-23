@@ -5,12 +5,18 @@
 [general]
 name=Replace Geometry
 qgisMinimumVersion=3.0
-description=Replaces a geometry keeping the attributes unchanged
-version=2.0
+qgisMaximumVersion=4.99
+supportsQt6=True
+description=Replaces the geometry of one selected feature while preserving its attributes, using a snapping-aware autonomous capture workflow.
+version=3.00
 author=Valerio Pinna
 email=pinnavalerio@yahoo.co.uk
 
-about=The plugin replaces a geometry keeping the attributes unchanged. It work with any type of geometry and any vector layer format.
+about=The Replace Geometry plugin provides a clean geometry replacement workflow for QGIS while preserving all existing feature attributes and metadata. The tool supports point, line and polygon layers and works with any editable vector layer format supported by QGIS.
+
+ The plugin uses an autonomous digitising workflow based on QgsMapToolAdvancedDigitizing, providing native QGIS snapping and CAD integration without relying on the standard QGIS Add Feature tool or temporary feature creation.
+
+ Designed for reliable GIS editing, CAD-style workflows and archaeological / geospatial production environments.
 
 tracker=https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin/issues
 repository=https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin.git
@@ -20,7 +26,39 @@ repository=https://github.com/ValPinnaSardinia/Replace-Geometry-Plugin.git
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=<strong>3.00</strong> - 23/05/2026
+ - Complete internal refactor of the geometry replacement workflow, reusing the autonomous capture approach from the newer replacement tool while removing all clipping functionality.
+
+ - Replaced the old native QGIS Add Feature / featureAdded signal workflow with a custom QgsMapToolAdvancedDigitizing capture tool.
+
+ - Added native snapping and advanced digitising support during geometry capture.
+
+ - Added live geometry preview using QgsRubberBand, including polygon fill preview while drawing.
+
+ - Added keyboard controls during capture:
+   - Esc cancels capture.
+   - Backspace removes the last vertex.
+   - Enter / Return finishes line or polygon capture.
+
+ - Added a settings dialog to configure confirmation prompts, capture help, preview colour, preview line width, Backspace feedback and return-to-previous-tool behaviour.
+
+ - Added geometry compatibility validation before replacement, including geometry type checks, multipart/singlepart validation and empty geometry protection.
+
+ - Improved undo/redo reliability using proper edit command handling.
+
+ - Improved plugin unload/reload safety, including cleanup of map tools, rubber bands, snapping indicators and toolbar actions.
+
+ - Removed dependency on temporary feature IDs, attribute popup suppression settings and QGIS native Add Feature behaviour.
+
+ - Removed all clipping controls and clipping logic to keep this plugin focused only on replacing geometry.
+
+ - Improved QGIS 3.x and QGIS 4 / Qt6 compatibility preparation.
+
+ <p><strong>2.00</strong>
+ - Previous public release of the Replace Geometry plugin.
+
+ <p><strong>1.00</strong>
+ - Initial release.
 
 # Tags are comma separated with spaces allowed
 tags=attribute, digitizing, geometry, point, polygon, polyline, replace
